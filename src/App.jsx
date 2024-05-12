@@ -2,30 +2,42 @@ import { useState } from "react";
 
 function App() {
   const [inputValue, setInputValue] = useState("");
-  const [taskList, setTaskList] = useState([]);
+  const [taskList, setTaskList] = useState(() => {
+    const savedTasks = localStorage.getItem("myTasks");
+    return savedTasks ? JSON.parse(savedTasks) : [];
+  });
 
   function addTask() {
-    setTaskList([inputValue, ...taskList]);
-    console.log(taskList);
+    const updatedTasks = [inputValue, ...taskList];
+    localStorage.setItem("myTasks", JSON.stringify(updatedTasks));
+    setTaskList(updatedTasks);
     setInputValue("");
   }
 
   function deleteTask(taskIndex) {
-    const newTaskList = taskList.filter((item, index) => index !== taskIndex);
-    setTaskList(newTaskList);
+    const updatedTasks = taskList.filter((_, index) => index !== taskIndex);
+    localStorage.setItem("myTasks", JSON.stringify(updatedTasks));
+    setTaskList(updatedTasks);
   }
 
   function increasePriority(taskIndex) {
-    const newTaskList = [...taskList];
-    const task = newTaskList.splice(taskIndex, 1);
-    newTaskList.splice(taskIndex - 1, 0, task);
-    setTaskList(newTaskList);
+    if (taskIndex > 0) {
+      const updatedTasks = [...taskList];
+      const task = updatedTasks.splice(taskIndex, 1)[0];
+      updatedTasks.splice(taskIndex - 1, 0, task);
+      localStorage.setItem("myTasks", JSON.stringify(updatedTasks));
+      setTaskList(updatedTasks);
+    }
   }
+
   function reducePriority(taskIndex) {
-    const newTaskList = [...taskList];
-    const task = newTaskList.splice(taskIndex, 1);
-    newTaskList.splice(taskIndex + 1, 0, task);
-    setTaskList(newTaskList);
+    if (taskIndex < taskList.length - 1) {
+      const updatedTasks = [...taskList];
+      const task = updatedTasks.splice(taskIndex, 1)[0];
+      updatedTasks.splice(taskIndex + 1, 0, task);
+      localStorage.setItem("myTasks", JSON.stringify(updatedTasks));
+      setTaskList(updatedTasks);
+    }
   }
 
   function changeTaskValue(e) {
